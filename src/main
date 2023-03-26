@@ -1,0 +1,100 @@
+import argparse
+import json
+
+# Display a welcome message
+print("Welcome to DM Machine!")
+print("To read from a JSON file, enter 'read <filename>'.")
+print("To search for a relic by name or holder, enter 'read <filename> -n <name> -h <holder>'.")
+print("To search for a god path by name, enter 'read <filename> -n <name>'.")
+print("To write to a JSON file, enter 'write <filename>'.")
+print("To quit, enter 'q' or 'quit'.")
+
+# Define the read function
+def read_data(file):
+    with open(file, "r") as f:
+        data = json.load(f)
+        return data
+
+# Define the write function
+def write_data(file, data):
+    with open(file, "w") as f:
+        json.dump(data, f, indent=4)
+
+# Define the search function for relics
+def search_relics(data, name=None, holder=None):
+    if name:
+        for relic in data["relics"]:
+            if relic["itemName"] == name:
+                print(relic)
+    elif holder:
+        for relic in data["relics"]:
+            if relic["holder"] == holder:
+                print(relic)
+
+# Define the search function for godPath
+def search_godPath(data, name=None):
+    if name:
+        for path in data["godPath"]:
+            if path["Name"] == name:
+                print(path)
+
+# Wait for user input
+while True:
+    user_input = input("Enter a command: ")
+    parts = user_input.split(" ")
+    command = parts[0]
+
+    if command == "read":
+        file = parts[1]
+        data = read_data(file)
+        if len(parts) > 2:
+            name = parts[parts.index("-n") + 1] if "-n" in parts else None
+            holder = parts[parts.index("-h") + 1] if "-h" in parts else None
+            search_relics(data, name, holder)
+            search_godPath(data, name)
+        else:
+            print(data)
+
+    elif command == "write":
+        file = parts[1]
+        data = {
+            "relics": [
+                {
+                    "itemName": "Golden Apple",
+                    "holder": "Athena",
+                    "itemLevel": 10,
+                    "mods": ["Health Boost", "Defense Boost"]
+                },
+                {
+                    "itemName": "Trident",
+                    "holder": "Poseidon",
+                    "itemLevel": 8,
+                    "mods": ["Water Damage", "Critical Hit"]
+                }
+            ],
+            "godPath": [
+                {
+                    "Name": "Warrior Path",
+                    "Description": "The path of the fierce warrior.",
+                    "effects": [
+                        {"level": 1, "mod": "Attack Boost"},
+                        {"level": 2, "mod": "Critical Hit"}
+                    ]
+                },
+                {
+                    "Name": "Sorcerer Path",
+                    "Description": "The path of the mystical sorcerer.",
+                    "effects": [
+                        {"level": 1, "mod": "Mana Boost"},
+                        {"level": 2, "mod": "Spell Power Boost"}
+                    ]
+                }
+            ]
+        }
+        write_data(file, data)
+
+    elif command in ["q", "quit"]:
+        break
+
+    else:
+        print("Invalid command")
